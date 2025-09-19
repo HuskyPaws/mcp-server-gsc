@@ -80,7 +80,7 @@ export class GoogleSearchConsoleService {
     } = {}
   ) {
     // Apply regex filter if provided
-    if (options.regexFilter && requestBody.dimensions?.includes('query')) {
+    if (options.regexFilter && requestBody?.dimensions?.includes('query')) {
       requestBody.dimensionFilterGroups = [
         ...(requestBody.dimensionFilterGroups || []),
         {
@@ -105,7 +105,7 @@ export class GoogleSearchConsoleService {
         enhancedFeatures: {
           regexFilterApplied: !!options.regexFilter,
           quickWinsEnabled: true,
-          rowLimit: requestBody.rowLimit || 1000
+          rowLimit: requestBody?.rowLimit || 1000
         }
       };
     }

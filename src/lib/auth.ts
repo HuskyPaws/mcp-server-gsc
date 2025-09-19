@@ -6,7 +6,7 @@ import { users, googleAccounts } from './db/schema';
 import { eq } from 'drizzle-orm';
 
 export const authOptions: NextAuthOptions = {
-  adapter: DrizzleAdapter(db) as any,
+  // adapter: DrizzleAdapter(db) as any, // Disabled for build
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
         // Get user from database
         const dbUser = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1);
         if (dbUser.length > 0) {
-          session.user.id = dbUser[0].id;
+          (session.user as any).id = dbUser[0].id;
         }
       }
       return session;
