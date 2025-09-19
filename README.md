@@ -1,170 +1,135 @@
-# Google Search Console MCP Server
-[![smithery badge](https://smithery.ai/badge/mcp-server-gsc)](https://smithery.ai/server/mcp-server-gsc)
+# GSC Web Dashboard
 
-A Model Context Protocol (MCP) server providing comprehensive access to Google Search Console data with enhanced analytics capabilities.
-
-### Sponsored by
-
-<a href="https://macuse.app">
-    <img src="https://macuse.app/logo.png" width="100" alt="Macuse">
-</a>
+A modern web application for managing multiple Google Search Console accounts and analyzing search performance data. Built with Next.js, TypeScript, and deployed on Railway.
 
 ## Features
 
-- **Enhanced Search Analytics**: Retrieve up to 25,000 rows of performance data
-- **Advanced Filtering**: Support for regex patterns and multiple filter operators
-- **Quick Wins Detection**: Automatically identify optimization opportunities
-- **Rich Dimensions**: Query, page, country, device, and search appearance analysis
-- **Flexible Date Ranges**: Customizable reporting periods with historical data access
+- 🔐 **Multi-Account Management**: Connect and manage multiple Google Search Console accounts
+- 📊 **Advanced Analytics**: Enhanced search analytics with up to 25,000 rows of data
+- 🚀 **Quick Wins Detection**: Automatically identify SEO optimization opportunities
+- 🎯 **Smart Filtering**: Support for regex patterns and advanced filters
+- 📱 **Responsive Design**: Modern, mobile-first UI built with Tailwind CSS
+- ☁️ **Cloud Deployed**: Hosted on Railway with PostgreSQL database
 
-## Prerequisites
+## Tech Stack
 
-- Node.js 18 or later
-- Google Cloud Project with Search Console API enabled
-- Service Account credentials with Search Console access
+- **Frontend**: Next.js 14, React, TypeScript
+- **UI**: Tailwind CSS, Radix UI, shadcn/ui
+- **Authentication**: NextAuth.js with Google OAuth
+- **Database**: PostgreSQL with Drizzle ORM
+- **Deployment**: Railway
+- **APIs**: Google Search Console API, Google Webmasters API
 
-## Installation
+## Quick Start
 
-### Installing via Smithery
+### Prerequisites
 
-To install Google Search Console for Claude Desktop automatically via [Smithery](https://smithery.ai/server/mcp-server-gsc):
+1. **Google Cloud Project** with Search Console API enabled
+2. **OAuth 2.0 credentials** (Client ID and Secret)
+3. **PostgreSQL database** (Railway provides this)
+
+### Environment Variables
+
+Copy `env.example` to `.env.local` and fill in your values:
 
 ```bash
-npx -y @smithery/cli install mcp-server-gsc --client claude
+DATABASE_URL="postgresql://username:password@host:port/database"
+NEXTAUTH_URL="https://your-app.railway.app"
+NEXTAUTH_SECRET="your-secret-key"
+GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-client-secret"
 ```
 
-### Manual Installation
+### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Enable the **Search Console API**
+4. Create OAuth 2.0 credentials:
+   - Application type: Web application
+   - Authorized redirect URIs: `https://your-app.railway.app/api/auth/callback/google`
+5. Add your service account email to Search Console properties as a user
+
+### Railway Deployment
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template)
+
+1. Click "Deploy on Railway"
+2. Connect your GitHub repository
+3. Add environment variables
+4. Deploy!
+
+### Local Development
+
 ```bash
-npm install mcp-server-gsc
+# Install dependencies
+npm install
+
+# Set up database
+npm run db:generate
+npm run db:migrate
+
+# Start development server
+npm run dev
 ```
-
-## Authentication Setup
-
-To obtain Google Search Console API credentials:
-
-1. Visit the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the API:
-
-- Go to "APIs & Services" > "Library"
-- Search for and enable ["Search Console API"](https://console.cloud.google.com/marketplace/product/google/searchconsole.googleapis.com)
-
-4. Create credentials:
-
-- Navigate to ["APIs & Services" > "Credentials"](https://console.cloud.google.com/apis/credentials)
-- Click "Create Credentials" > "Service Account"
-- Fill in the service account details
-- Create a new key in JSON format
-- The credentials file (.json) will download automatically
-
-5. Grant access:
-
-- Open Search Console
-- Add the service account email (format: name@project.iam.gserviceaccount.com) as a property administrator
 
 ## Usage
 
-### Claude Desktop Configuration
+### 1. Authentication
+- Sign in with your Google account
+- Grant Search Console permissions
+- Your account will be automatically connected
 
-```json
-{
-  "mcpServers": {
-    "gsc": {
-      "command": "npx",
-      "args": ["-y", "mcp-server-gsc"],
-      "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/credentials.json"
-      }
-    }
-  }
-}
-```
+### 2. Managing Accounts
+- View all connected Google accounts
+- Sync Search Console properties
+- Monitor account status and permissions
 
-## Available Tools
+### 3. Search Analytics
+- Select any connected property
+- Configure date ranges and dimensions
+- Run advanced analytics queries
+- Export results and identify quick wins
 
-### search_analytics
+## API Endpoints
 
-Get comprehensive search performance data from Google Search Console with enhanced analytics capabilities.
+### Accounts
+- `GET /api/accounts` - List all connected Google accounts
+- `POST /api/accounts/{id}/sync` - Sync Search Console sites
 
-**Required Parameters:**
+### Sites
+- `GET /api/sites` - List all accessible Search Console properties
 
-- `siteUrl`: Site URL (format: `http://www.example.com/` or `sc-domain:example.com`)
-- `startDate`: Start date (YYYY-MM-DD)
-- `endDate`: End date (YYYY-MM-DD)
+### Analytics
+- `GET /api/analytics/search` - Run search analytics queries
 
-**Optional Parameters:**
+## Database Schema
 
-- `dimensions`: Comma-separated list (`query`, `page`, `country`, `device`, `searchAppearance`, `date`)
-- `type`: Search type (`web`, `image`, `video`, `news`, `discover`, `googleNews`)
-- `aggregationType`: Aggregation method (`auto`, `byNewsShowcasePanel`, `byProperty`, `byPage`)
-- `rowLimit`: Maximum rows to return (default: 1000, max: 25000)
-- `dataState`: Data freshness (`all` or `final`, default: `final`)
-
-**Filter Parameters:**
-
-- `pageFilter`: Filter by page URL (supports regex with `regex:` prefix)
-- `queryFilter`: Filter by search query (supports regex with `regex:` prefix)
-- `countryFilter`: Filter by country ISO 3166-1 alpha-3 code (e.g., `USA`, `CHN`)
-- `deviceFilter`: Filter by device type (`DESKTOP`, `MOBILE`, `TABLET`)
-- `searchAppearanceFilter`: Filter by search feature (e.g., `AMP_BLUE_LINK`, `AMP_TOP_STORIES`)
-- `filterOperator`: Operator for filters (`equals`, `contains`, `notEquals`, `notContains`, `includingRegex`, `excludingRegex`)
-
-**Quick Wins Detection:**
-
-- `detectQuickWins`: Enable automatic detection of optimization opportunities (default: `false`)
-- `quickWinsConfig`: Configuration for quick wins detection:
-  - `positionRange`: Position range to consider (default: `[4, 20]`)
-  - `minImpressions`: Minimum impressions threshold (default: `100`)
-  - `minCtr`: Minimum CTR percentage (default: `1`)
-
-**Example - Basic Query:**
-
-```json
-{
-  "siteUrl": "https://example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31",
-  "dimensions": "query,page",
-  "rowLimit": 5000
-}
-```
-
-**Example - Advanced Filtering with Regex:**
-
-```json
-{
-  "siteUrl": "https://example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31",
-  "dimensions": "page,query",
-  "queryFilter": "regex:(AI|machine learning|ML)",
-  "filterOperator": "includingRegex",
-  "deviceFilter": "MOBILE",
-  "rowLimit": 10000
-}
-```
-
-**Example - Quick Wins Detection:**
-
-```json
-{
-  "siteUrl": "https://example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31",
-  "dimensions": "query,page",
-  "detectQuickWins": true,
-  "quickWinsConfig": {
-    "positionRange": [4, 15],
-    "minImpressions": 500,
-    "minCtr": 2
-  }
-}
-```
-
-## License
-
-MIT
+The application uses the following main tables:
+- `users` - User accounts and profiles
+- `google_accounts` - Connected Google accounts with OAuth tokens
+- `search_console_sites` - Search Console properties and permissions
+- `analytics_queries` - Saved queries and schedules
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Support
+
+For issues and questions:
+1. Check the [GitHub Issues](https://github.com/your-repo/issues)
+2. Review the [Google Search Console API documentation](https://developers.google.com/webmaster-tools)
+3. Contact support through the application
+
+---
+
+Built with ❤️ using Next.js and deployed on Railway
